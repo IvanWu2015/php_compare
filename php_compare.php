@@ -7,12 +7,16 @@
  *      
  */
 error_reporting(E_ERROR);
+ini_set('max_execution_time','300');//超时时间设置为5分钟
 $compare = new CreateMd5List;
-$compare->set('base_dir', 'E:/phpStudy/PHPTutorial/WWW/chinatt/source/plugin/');
-$compare->set('specify_ext_name_list', ['php', 'html']);
+// $compare->set('base_dir', 'E:/phpStudy/PHPTutorial/WWW/chinatt/source/plugin/');
+$compare->set('specify_ext_name_list', ['php']);
+$compare->set('filter_name_list', ['.', '..', '.git', 'data', 'cache', '.svn', 'log', 'template']);
 $compare->scanFilelist();
 //$compare->createMd5File();
-print_r($compare->md5file_list);
+echo '文件已经生成,请下载下来后与本地生成的MD5文件进行对比,并尽快删除本文件。<br/>';
+echo '路径:'.$compare->save_path.$compare->md5_file_name;
+exit;
 
 /**
  * 文件MD5生成处理类
@@ -25,7 +29,7 @@ class CreateMd5List {
 	public $filter_ext_name_list = ['jpg','gif','png','bmp','css', 'md5'];//需要过滤不处理的文件类型
 	public $specify_ext_name_list = ['php','htm']; //指定要处理的文件类型
 
-
+	public $md5_file_name = '';//存储的MD5文件名称
 	public $file_list = [];//存储扫描到的文件列表
 	public $file_handle = '';//存储MD5文件对象
 
@@ -36,7 +40,7 @@ class CreateMd5List {
 	function __construct() {
 		$this->base_dir = __DIR__;//设置当前目录为根目录
 		$this->base_dir = str_replace('\\', '/', $this->base_dir);
-		$this->save_path = $this->base_dir;
+		$this->save_path = $this->base_dir.'/md5_logs';
 	}
 
 	/**
@@ -94,6 +98,12 @@ class CreateMd5List {
 	 * Creates a md 5 file.
 	 */
 	function createMd5File() {
+		if(is_dir($this->save_path) == false){
+			if(@mkdir($this->save_path) == false) {
+				echo "文件存储路径创建失败，请确定是否有文件夹创建权限。或者使用->set('save_path', '新路径')指定新路径<br/>";
+				echo "当前存储路径为：".$this->save_path;
+			}
+		}
 		$this->md5_file_name = 'scan_'.date("Ymd_His",time()+8*60*60).'.md5';
 		$this->file_handle = fopen($this->save_path.'/'.$this->md5_file_name, 'a');
 		if(!$this->file_handle) {
