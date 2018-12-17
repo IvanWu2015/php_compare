@@ -6,7 +6,7 @@
  * @Author: wuxin
  * @Date:   2018-12-12 21:44:09
  * @Last Modified by:   wuxin
- * @Last Modified time: 2018-12-17 16:27:08
+ * @Last Modified time: 2018-12-17 17:56:59
  * @GitHub: https://github.com/IvanWu2015
  */
 
@@ -51,7 +51,7 @@ class CreateMd5 {
 	 * @param      string  $key    The key
 	 * @param      string/array  $value  The value
 	 */
-	function set($key, $value) {
+	function  set($key, $value) {
 		$this->$key = $value;
 		return;
 	}
@@ -66,7 +66,7 @@ class CreateMd5 {
 		$dir = empty($dir) ? $this->scan_path : $dir;
 		$dir_list = scandir($dir);
 		foreach($dir_list as $file) {
-			if(!in_array($file, $this->filter_name_list) && !in_array('.', '..')) {
+			if(!in_array($file, $this->filter_name_list) && !in_array($file, ['.', '..'])) {
 	            //子文件夹递归
 				if(is_dir($dir."/".$file)) { 
 					$this->scanFilelist($dir."/".$file);
