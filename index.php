@@ -6,12 +6,24 @@
  * @Author: wuxin
  * @Date:   2018-12-17 10:45:20
  * @Last Modified by:   wuxin
- * @Last Modified time: 2018-12-17 18:00:30
+ * @Last Modified time: 2018-12-17 21:58:05
  * @GitHub: https://github.com/IvanWu2015
  */
 
 error_reporting(E_ERROR);
 ini_set('max_execution_time','120');//超时时间设置为2分钟
+
+session_start();
+$lock = file_exists(__DIR__.'/md5.lock');
+if($lock && $_SESSION['md5_check'] != 'ivan') {
+	exit('请先删除当前目录下的md5.lock文件再运行。');
+} else {
+	if(file_put_contents(__DIR__.'/md5.lock', 'ivan')) {
+		$_SESSION['md5_check'] = 'ivan';
+	} else {
+		exit('lock文件创建失败，请检查'.__DIR__.'目录是否有写入权限。');
+	}
+}
 
 include_once "./class/CreateMd5.php";
 $CreateMd5 = new CreateMd5;//实例化MD5处理类
@@ -40,7 +52,7 @@ switch ($action) {
 		window.location.href="./index.php?action=logs"; 
 		</script>';
 	} else {
-		$base_dir = dirname(__DIR__);
+		
 		//列出当前目录结构
 		if(empty($path)) {
 			$dir_list = scandir($base_dir);
