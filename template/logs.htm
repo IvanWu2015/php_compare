@@ -1,0 +1,17 @@
+
+	<div class="container">
+		<div class="row">
+			<form action="./index.php?action=compare" method="post">
+				<div class="alert alert-warning">由于文件对比消耗资源巨大，强烈建立下载DM5文件在本地进行对比！</div>
+				<p>目前已生成的MD5记录文件,请勾选需要对比的两个文件。</p>
+				<ul>
+				<?php
+				foreach($md5_file_list as $temp_file) {
+					echo '<li><input type="checkbox" name="file[]" value="'.$temp_file['file_name'].'">'.$temp_file['file_name'].'<span class="">'.$temp_file['file_size'].'</li>';
+				}
+				?>
+				</ul>
+				<button type="submit">提交</button>
+			</form>
+		</div>
+	</div>

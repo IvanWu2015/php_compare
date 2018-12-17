@@ -1,32 +1,25 @@
 <?php
+
 /**
- * 	php_compare
- * 	php文件对比工具，开发目的为网站被黑后快速对比本地文件与服务器文件差异
- *      This is NOT a freeware, use is subject to license terms
- *      Author: IvanWu(admin@ivanwu.cn)
- *      
+ *   [IvanWu] (C)2001-2099 IvanWu.cn
+ * @This is NOT a freeware, use is subject to license terms
+ * @Author: wuxin
+ * @Date:   2018-12-12 21:44:09
+ * @Last Modified by:   wuxin
+ * @Last Modified time: 2018-12-17 16:27:08
+ * @GitHub: https://github.com/IvanWu2015
  */
-error_reporting(E_ERROR);
-ini_set('max_execution_time','300');//超时时间设置为5分钟
-$compare = new CreateMd5List;
-// $compare->set('base_dir', 'E:/phpStudy/PHPTutorial/WWW/chinatt/source/plugin/');
-$compare->set('specify_ext_name_list', ['php']);
-$compare->set('filter_name_list', ['.', '..', '.git', 'data', 'cache', '.svn', 'log', 'template']);
-$compare->scanFilelist();
-echo '文件已经生成,请下载下来后与本地生成的MD5文件进行对比,并尽快删除本文件。<br/>';
-echo '路径:'.$compare->save_path.'/'.$compare->md5_file_name;
-exit;
 
 /**
  * 文件MD5生成处理类
  */
-class CreateMd5List {
+class CreateMd5 {
 	public $base_dir;	//当前目录
 	public $md5file_list;	//最终的MD5文件结果
 	public $save_path = '';	//md5文件保存路径
 	public $scan_path = '';//扫描路径
-	public $filter_name_list = ['.', '..', '.git', 'data', 'cache', '.svn', 'log', '.gitignore'];//过滤指定文件夹或文件不处理
-	public $filter_ext_name_list = ['jpg','gif','png','bmp','css', 'md5'];//需要过滤不处理的文件类型
+	public $filter_name_list = ['.git', 'data', 'cache', '.svn', 'log', '.gitignore'];//过滤指定文件夹或文件不处理
+	public $filter_ext_name_list = ['jpg','gif','png','bmp','css', 'md5', 'txt'];//需要过滤不处理的文件类型
 	public $specify_ext_name_list = ['php','htm']; //指定要处理的文件类型
 
 	public $md5_file_name = '';//存储的MD5文件名称
@@ -38,7 +31,7 @@ class CreateMd5List {
 	 * 初始化处理
 	 */
 	function __construct() {
-		$this->base_dir = __DIR__;//设置当前目录为根目录
+		$this->base_dir = dirname(__DIR__);//设置当前目录为根目录
 		$this->base_dir = str_replace('\\', '/', $this->base_dir);
 		$this->save_path = $this->base_dir.'/md5_logs';
 		$this->scan_path = $this->base_dir;
@@ -73,7 +66,7 @@ class CreateMd5List {
 		$dir = empty($dir) ? $this->scan_path : $dir;
 		$dir_list = scandir($dir);
 		foreach($dir_list as $file) {
-			if(!in_array($file, $this->filter_name_list)) {
+			if(!in_array($file, $this->filter_name_list) && !in_array('.', '..')) {
 	            //子文件夹递归
 				if(is_dir($dir."/".$file)) { 
 					$this->scanFilelist($dir."/".$file);
@@ -119,7 +112,7 @@ class CreateMd5List {
 		$this->addLine('*        Server   IP: '.$_SERVER['SERVER_ADDR']);
 		$this->addLine('*        Server Name: '.$_SERVER['SERVER_NAME']);
 		$this->addLine('*        Scan   Path: '.$this->scan_path);
-		$this->addLine('*        Scan   Time: '.date("Ymd_His",time()+8*60*60));
+		$this->addLine('*        Scan   Time: '.date("Y-m-d H:i:s",time()+8*60*60));
 		$this->addLine('*****************************************************/'."\r\n");
 		return true;
 	}
@@ -142,7 +135,7 @@ class CreateMd5List {
 
 
 	/**
-	 * Adds a line.
+	 * 将信息写入行
 	 *
 	 * @param      string  $line   The line
 	 *
@@ -156,5 +149,17 @@ class CreateMd5List {
 	}
 
 
+	function getMd5Logs() {
+		$file_lists = scandir($this->base_dir.'/md5_logs');
+		$md5_list = [];
+		foreach($file_lists as $temp) {
+			if(end(explode('.', $temp)) == 'md5'){
+				$new_file['file_name'] = $temp;
+				$new_file['file_size'] = filesize($this->base_dir.'/md5_logs/'.$temp);
+				$md5_list[] = $new_file;
+			}
+		}
+		return $md5_list;
+	}
 
 }
